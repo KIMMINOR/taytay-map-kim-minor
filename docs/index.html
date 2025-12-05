@@ -20,26 +20,29 @@
 <div id="map"></div>
 
 <script>
-// Initialize map temporarily at 0,0
-var map = L.map('map').setView([0, 0], 2);
+// Initial map at Taytay, Palawan (approximate) in case shapefiles are slow to load
+var map = L.map('map').setView([9.7806, 118.2108], 14);
 
 // Add OpenStreetMap tiles
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19
 }).addTo(map);
 
-// Layer holder
+// Layer holder and control
 var layers = {};
 var layerControl = L.control.layers(null, null, { collapsed: false }).addTo(map);
 
 // FeatureGroup to auto-fit all layers
-var boundsGroup = new L.featureGroup();
+var boundsGroup = new L.featureGroup().addTo(map);
 
 // Function to load shapefiles
 function loadShapefile(path, label, color) {
   shp(path).then(function (geojson) {
     var layer = L.geoJSON(geojson, {
-      style: { color: color, weight: 2 }
+      style: { color: color, weight: 2 },
+      onEachFeature: function(feature, layer) {
+        layer.bindPopup(label);
+      }
     }).addTo(map);
 
     layers[label] = layer;
@@ -52,7 +55,7 @@ function loadShapefile(path, label, color) {
   }).catch(err => console.error("Error loading " + label, err));
 }
 
-// ---------- LOAD ALL SHAPEFILES ----------
+// ---------------- LOAD ALL SHAPEFILES ----------------
 loadShapefile("Ace York Mangalino Boarding House.shp", "Ace York Mangalino Boarding House", "red");
 loadShapefile("Barangay Hall Barangay Poblacion.shp", "Barangay Hall - Poblacion", "blue");
 loadShapefile("Casa Rosa.shp", "Casa Rosa", "green");
@@ -69,10 +72,3 @@ loadShapefile("Santa Monica Parish Church.shp", "Santa Monica Parish Church", "m
 loadShapefile("St.Joseph the Worker Cathedral.shp", "St. Joseph the Worker Cathedral", "navy");
 loadShapefile("Taytay Public Market.shp", "Taytay Public Market", "teal");
 loadShapefile("Taytay palawan Municipal Hall.shp", "Taytay Municipal Hall", "gold");
-
-// Add more layers if needed
-
-</script>
-
-</body>
-</html>
