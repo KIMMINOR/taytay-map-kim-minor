@@ -1,18 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Taytay Multi-Layer Map Viewer</title>
+  <title>Taytay Map Viewer</title>
   <meta charset="utf-8" />
   <style>
     #map { height: 100vh; width: 100%; margin: 0; padding: 0; }
     body { margin: 0; }
   </style>
 
-  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-  <!-- SHPJS -->
   <script src="https://unpkg.com/shpjs/dist/shp.min.js"></script>
 </head>
 <body>
@@ -20,25 +17,22 @@
 <div id="map"></div>
 
 <script>
-// Initial map at Taytay, Palawan
-var map = L.map('map').setView([9.7806, 118.2108], 14);
+// Center map specifically on Taytay, Palawan
+var map = L.map('map').setView([9.7806, 118.2108], 15); // zoom in for Taytay
 
-// Add OpenStreetMap tiles
+// OpenStreetMap tiles
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19
 }).addTo(map);
 
-// Layer holder and control
+// Layer control
 var layers = {};
 var layerControl = L.control.layers(null, null, { collapsed: false }).addTo(map);
 
-// FeatureGroup to auto-fit all layers
-var boundsGroup = new L.featureGroup().addTo(map);
-
-// Function to load shapefiles from /docs folder
+// Function to load shapefiles from /docs
 function loadShapefile(filename, label, color) {
-  var path = "docs/" + filename; // Path points to /docs
-  shp(path).then(function (geojson) {
+  var path = "docs/" + filename;
+  shp(path).then(function(geojson) {
     var layer = L.geoJSON(geojson, {
       style: { color: color, weight: 2 },
       onEachFeature: function(feature, layer) {
@@ -48,14 +42,11 @@ function loadShapefile(filename, label, color) {
 
     layers[label] = layer;
     layerControl.addOverlay(layer, label);
-
-    boundsGroup.addLayer(layer);
-    map.fitBounds(boundsGroup.getBounds()); // Auto zoom & center
     console.log(label + " loaded from /docs");
   }).catch(err => console.error("Error loading " + label, err));
 }
 
-// ---------------- LOAD ALL SHAPEFILES FROM /docs ----------------
+// Load all shapefiles
 loadShapefile("Ace York Mangalino Boarding House.shp", "Ace York Mangalino Boarding House", "red");
 loadShapefile("Barangay Hall Barangay Poblacion.shp", "Barangay Hall - Poblacion", "blue");
 loadShapefile("Casa Rosa.shp", "Casa Rosa", "green");
@@ -77,4 +68,3 @@ loadShapefile("Taytay palawan Municipal Hall.shp", "Taytay Municipal Hall", "gol
 
 </body>
 </html>
-
