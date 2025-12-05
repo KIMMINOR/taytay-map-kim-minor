@@ -1,18 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Taytay Map Viewer</title>
+  <title>Taytay Multi-Layer Map Viewer</title>
   <meta charset="utf-8" />
   <style>
     #map { height: 100vh; width: 100%; margin: 0; padding: 0; }
     body { margin: 0; }
   </style>
 
-  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-  <!-- SHPJS (Reader for .shp files) -->
   <script src="https://unpkg.com/shpjs/dist/shp.min.js"></script>
 </head>
 <body>
@@ -20,19 +17,48 @@
 <div id="map"></div>
 
 <script>
-  // Create map centered around Taytay area
-  var map = L.map('map').setView([14.556, 121.132], 15);
+var map = L.map('map').setView([14.556, 121.132], 15);
 
-  // Base map layer (OpenStreetMap)
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19
-  }).addTo(map);
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  maxZoom: 19
+}).addTo(map);
 
-  // Load SHP file from your repo
-  // EXAMPLE: Change filename to the shapefile you want to display
-  shp("Ace York Mangalino Boarding House.shp").then(function (geojson) {
-      L.geoJSON(geojson).addTo(map);
-  }).catch(err => console.error("Error loading SHP:", err));
+// Layer holder
+var layers = {};
+var layerControl = L.control.layers(null, null, { collapsed: false }).addTo(map);
+
+// Load shapefile function
+function loadShapefile(path, label, color) {
+  shp(path).then(function (geojson) {
+    var layer = L.geoJSON(geojson, {
+      style: { color: color, weight: 2 }
+    }).addTo(map);
+
+    layers[label] = layer;
+    layerControl.addOverlay(layer, label);
+    console.log(label + " loaded");
+  }).catch(err => console.error("Error loading " + label, err));
+}
+
+// LOAD ALL LAYERS HERE
+loadShapefile("Ace York Mangalino Boarding House.shp", "Ace York Mangalino Boarding House", "red");
+loadShapefile("Barangay Hall Barangay Poblacion.shp", "Barangay Hall - Poblacion", "blue");
+loadShapefile("Casa Rosa.shp", "Casa Rosa", "green");
+loadShapefile("DNR CENRO Taytay Palawan.shp", "DNR CENRO Taytay", "orange");
+loadShapefile("Fort Santa Isabel.shp", "Fort Santa Isabel", "purple");
+loadShapefile("Gentoleo Residence.shp", "Gentoleo Residence", "brown");
+loadShapefile("Happy Go.shp", "Happy Go", "yellow");
+loadShapefile("Julio Arzaga Elementary School.shp", "Julio Arzaga Elementary School", "pink");
+loadShapefile("PSU TAYTAY CAMPUS.shp", "PSU Taytay Campus", "cyan");
+loadShapefile("Poblacion Port.shp", "Poblacion Port", "lime");
+loadShapefile("Poblacion.shp", "Poblacion", "black");
+loadShapefile("Road.shp", "Roads", "gray");
+loadShapefile("Santa Monica Parish Church.shp", "Santa Monica Parish Church", "maroon");
+loadShapefile("St.Joseph the Worker Cathedral.shp", "St. Joseph the Worker Cathedral", "navy");
+loadShapefile("Taytay Public Market.shp", "Taytay Public Market", "teal");
+loadShapefile("Taytay palawan Municipal Hall.shp", "Taytay Municipal Hall", "gold");
+
+// You can add more if needed.
 
 </script>
 
