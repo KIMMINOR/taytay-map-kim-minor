@@ -8,8 +8,11 @@
     body { margin: 0; }
   </style>
 
+  <!-- Leaflet -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+  <!-- SHPJS -->
   <script src="https://unpkg.com/shpjs/dist/shp.min.js"></script>
 </head>
 <body>
@@ -17,8 +20,10 @@
 <div id="map"></div>
 
 <script>
-var map = L.map('map').setView([14.556, 121.132], 15);
+// Initialize map temporarily at 0,0
+var map = L.map('map').setView([0, 0], 2);
 
+// Add OpenStreetMap tiles
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
   maxZoom: 19
 }).addTo(map);
@@ -27,7 +32,10 @@ L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
 var layers = {};
 var layerControl = L.control.layers(null, null, { collapsed: false }).addTo(map);
 
-// Load shapefile function
+// FeatureGroup to auto-fit all layers
+var boundsGroup = new L.featureGroup();
+
+// Function to load shapefiles
 function loadShapefile(path, label, color) {
   shp(path).then(function (geojson) {
     var layer = L.geoJSON(geojson, {
@@ -36,11 +44,15 @@ function loadShapefile(path, label, color) {
 
     layers[label] = layer;
     layerControl.addOverlay(layer, label);
+
+    boundsGroup.addLayer(layer);
+    map.fitBounds(boundsGroup.getBounds()); // Auto zoom & center
+
     console.log(label + " loaded");
   }).catch(err => console.error("Error loading " + label, err));
 }
 
-// LOAD ALL LAYERS HERE
+// ---------- LOAD ALL SHAPEFILES ----------
 loadShapefile("Ace York Mangalino Boarding House.shp", "Ace York Mangalino Boarding House", "red");
 loadShapefile("Barangay Hall Barangay Poblacion.shp", "Barangay Hall - Poblacion", "blue");
 loadShapefile("Casa Rosa.shp", "Casa Rosa", "green");
@@ -58,7 +70,7 @@ loadShapefile("St.Joseph the Worker Cathedral.shp", "St. Joseph the Worker Cathe
 loadShapefile("Taytay Public Market.shp", "Taytay Public Market", "teal");
 loadShapefile("Taytay palawan Municipal Hall.shp", "Taytay Municipal Hall", "gold");
 
-// You can add more if needed.
+// Add more layers if needed
 
 </script>
 
